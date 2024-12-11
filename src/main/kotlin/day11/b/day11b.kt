@@ -8,29 +8,11 @@ fun main() {
     val stones = mutableListOf<Stone>()
 
     val row = input[0]
-
-    row.split(' ').forEach { s ->
-//            println(s)
-            stones.add(Stone(s.toLong()))
-        }
+    row.split(' ').forEach { s -> stones.add(Stone(s.toLong())) }
 
     val stoneRow = StoneRow(stones)
 
-//    stoneRow.print()
-
-
     var output = stoneRow.blink(75)
-
-//    stoneRow.stones.forEachIndexed {index, stone -> run {
-//        val tempStoneRow = StoneRow(listOf(stone))
-//        for (i in 0 until 75) {
-//            println("$index: $i")
-//            tempStoneRow.blink()
-////        stoneRow.print()
-//        }
-//        output += tempStoneRow.getNumberOfStones()
-//    }}
-
 
     println(output)
 }
@@ -49,14 +31,6 @@ class StoneRow(var stones: List<Stone>){
         println()
     }
 
-//    fun blink() {
-//        val resultOfBlink = mutableListOf<Stone>()
-//
-//        stones.forEach { s -> resultOfBlink.addAll(s.blink()) }
-//
-//        stones = resultOfBlink
-//    }
-
     fun blink(times: Int): Long {
        return stones.sumOf { s -> blink(times, s) }
     }
@@ -64,7 +38,6 @@ class StoneRow(var stones: List<Stone>){
     fun blink(times: Int, stone: Stone): Long {
         val cachedResult = map.getOrDefault(Key(times, stone.value), null)
         if (cachedResult != null) {
-            println("found cached result")
             return cachedResult
         }
         val result = stone.blink()
@@ -77,10 +50,6 @@ class StoneRow(var stones: List<Stone>){
 
         return resultCount
     }
-
-    fun getNumberOfStones(): Int {
-        return stones.count()
-    }
 }
 
 class Stone(val value : Long) {
@@ -89,14 +58,10 @@ class Stone(val value : Long) {
             return listOf(Stone(1L))
         }
         val stringValue = value.toString()
-//        println("stirngValue $stringValue")
         if (stringValue.count() % 2 == 0){
             val half = stringValue.count()/2
-//            println("half $half")
             val value1 = stringValue.substring(0..<half)
-//            println("value1 $value1")
             val value2 = stringValue.substring(half..<stringValue.count())
-//            println("value2 $value2")
             return listOf(Stone(value1.toLong()), Stone(value2.toLong()) )
         }
 
