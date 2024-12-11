@@ -18,16 +18,28 @@ fun main() {
 
 //    stoneRow.print()
 
-    for (i in 0 until 75) {
-        stoneRow.blink()
-//        stoneRow.print()
-    }
+
+    var output = stoneRow.blink(75)
+
+//    stoneRow.stones.forEachIndexed {index, stone -> run {
+//        val tempStoneRow = StoneRow(listOf(stone))
+//        for (i in 0 until 75) {
+//            println("$index: $i")
+//            tempStoneRow.blink()
+////        stoneRow.print()
+//        }
+//        output += tempStoneRow.getNumberOfStones()
+//    }}
 
 
-    println(stoneRow.getNumberOfStones())
+    println(output)
 }
 
-class StoneRow(private var stones: List<Stone>){
+data class Key(val times: Int, val value: Long)
+
+class StoneRow(var stones: List<Stone>){
+
+    val map = mutableMapOf<Key, Long>()
 
     fun print() {
         stones.forEach { s -> run {
@@ -37,12 +49,33 @@ class StoneRow(private var stones: List<Stone>){
         println()
     }
 
-    fun blink() {
-        val resultOfBlink = mutableListOf<Stone>()
+//    fun blink() {
+//        val resultOfBlink = mutableListOf<Stone>()
+//
+//        stones.forEach { s -> resultOfBlink.addAll(s.blink()) }
+//
+//        stones = resultOfBlink
+//    }
 
-        stones.forEach { s -> resultOfBlink.addAll(s.blink()) }
+    fun blink(times: Int): Long {
+       return stones.sumOf { s -> blink(times, s) }
+    }
 
-        stones = resultOfBlink
+    fun blink(times: Int, stone: Stone): Long {
+        val cachedResult = map.getOrDefault(Key(times, stone.value), null)
+        if (cachedResult != null) {
+            println("found cached result")
+            return cachedResult
+        }
+        val result = stone.blink()
+        if(times == 1) {
+            return result.count().toLong()
+        }
+        val resultCount = result.sumOf { s -> blink(times-1, s) }
+
+        map[Key(times,stone.value)] = resultCount
+
+        return resultCount
     }
 
     fun getNumberOfStones(): Int {
