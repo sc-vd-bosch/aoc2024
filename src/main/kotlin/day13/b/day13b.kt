@@ -3,34 +3,24 @@ package org.example.day13.b
 import java.io.File
 
 fun main() {
-    var input = File("src/main/resources/day13a-example.txt").readLines()
-
+    var input = File("src/main/resources/day13a.txt").readLines()
 
     val arcade = Arcade.parse(input)
-//    arcade.print()
+    arcade.print()
 
-    println(arcade.calc())
-//    println(arcade.minimumAmountOfCoinsToWinAll())
+    println(arcade.minimumAmountOfCoinsToWinAll())
+
 }
 
-
-
-
 class Arcade(private val clawMachines: List<ClawMachine>) {
-
-    //a.x * i + b.x * j = prize.x && a.y * i + b.y * j = prize.y
-
-    fun calc(): Long {
-        return clawMachines.sumOf { cm -> cm.calc() }
-    }
 
     fun print() {
         clawMachines.forEach { cm -> cm.print() }
     }
 
-//    fun minimumAmountOfCoinsToWinAll(): Long {
-//        return clawMachines.sumOf { cm -> cm.calc() }
-//    }
+    fun minimumAmountOfCoinsToWinAll(): Long {
+        return clawMachines.sumOf { cm -> cm.minimumAmountOfCoinsToWin() }
+    }
 
     companion object {
         fun parse(input: List<String>): Arcade {
@@ -45,55 +35,16 @@ class Arcade(private val clawMachines: List<ClawMachine>) {
     }
 }
 
-class ClawMachine(val a: Button, val b: Button, private val prize: Prize) {
-
-    fun calc(): Long {
-        println("start calc a(${a.x}, ${a.y}) b(${b.x}, ${b.y}) -> prize(${prize.x}, ${prize.y}) ")
-        val bTimes = ((a.x * prize.y) - (a.y * prize.x)) / ((a.x * b.y) - (a.y * b.x))
-        var bla = ((a.x * prize.y) - (a.y * prize.x)) % ((a.x * b.y) - (a.y * b.x))
-        println("bTimes: $bTimes  $bla")
-        if(bTimes % 1.0 == 0.000000000000000000000000) {
-            val bCost = bTimes.toLong() * b.coinsPerClick
-
-            if(prize.)
-
-            val aCost = 0 * a.coinsPerClick
-
-
-            return bCost
-        }
-
-        return 0L
-
+class ClawMachine(private val aButton: Button, private val bButton: Button, private val prize: Prize) {
+    fun minimumAmountOfCoinsToWin(): Long {
+        val a = (prize.x * bButton.y - prize.y * bButton.x) / (aButton.x * bButton.y - aButton.y * bButton.x)
+        val b = (prize.x - aButton.x * a) / bButton.x
+        return if (a * aButton.x + b * bButton.x == prize.x && a * aButton.y + b * bButton.y == prize.y) aButton.coinsPerClick * a + bButton.coinsPerClick * b else 0
     }
 
-
-//    fun calc(): Long {
-//       var subA = calcSubA()
-//        var subB = calcSubB()
-//        return subA.coerceAtMost(subB)
-//    }
-//
-//    fun calcSubB(): Long {
-//        var bTimes = (prize.y - (a.y * ((prize.x/a.x) - (b.x/a.x)) ) ) / b.y
-//        if(bTimes > bTimes.toLong()) return 0L
-//        var aTimes = (prize.x/a.x) - ((b.x/a.x)*bTimes)
-//
-//        return (aTimes.toLong() * a.coinsPerClick) + (bTimes.toLong() * b.coinsPerClick)
-//    }
-//
-//    fun calcSubA(): Long {
-//        var aTimes = (prize.y - (a.y * ((prize.x/a.x) - (b.x/a.x)) ) ) / b.y
-//        if(bTimes > bTimes.toLong()) return 0L
-//        var bTimes = (prize.y/b.x) - ((a.x/b.x)*aTimes)
-//
-//        return (aTimes.toLong() * a.coinsPerClick) + (bTimes.toLong() * b.coinsPerClick)
-//    }
-    
-
     fun print() {
-        println("Button A: X+${a.x}, Y+${a.y}")
-        println("Button B: X+${b.x}, Y+${b.y}")
+        println("Button A: X+${aButton.x}, Y+${aButton.y}")
+        println("Button B: X+${bButton.x}, Y+${bButton.y}")
         println("Prize: X=${prize.x}, Y=${prize.y}")
         println()
     }
@@ -110,7 +61,7 @@ class ClawMachine(val a: Button, val b: Button, private val prize: Prize) {
     }
 }
 
-class Button(val x: Double, val y: Double, val coinsPerClick: Long) {
+class Button(val x: Long, val y: Long, val coinsPerClick: Long) {
     companion object{
         private val regex = Regex(""": X\+([0-9]+), Y\+([0-9]+)""")
         fun parse(s: String, coinsPerClick: Long): Button {
@@ -118,12 +69,12 @@ class Button(val x: Double, val y: Double, val coinsPerClick: Long) {
             if(matches.count() != 1) throw Error("Match function does not work")
             val match = matches.first()
             val (a, b) = match.destructured
-            return Button(a.toDouble(), b.toDouble(), coinsPerClick)
+            return Button(a.toLong(), b.toLong(), coinsPerClick)
         }
     }
 }
 
-class Prize(val x: Double, val y: Double){
+class Prize(val x: Long, val y: Long){
     companion object{
         private val regex = Regex(""": X=([0-9]+), Y=([0-9]+)""")
         fun parse(s: String): Prize {
@@ -132,12 +83,10 @@ class Prize(val x: Double, val y: Double){
             if(matches.count() != 1) throw Error("Match function does not work")
             val match = matches.first()
             val (a, b) = match.destructured
-            return Prize(a.toDouble(), b.toDouble())
+            return Prize(a.toLong() + 10000000000000L, b.toLong() + 10000000000000L)
             //                           2318682584
         }
     }
 }
 
-data class Coordinates(val x: Double, val y: Double)
-
-
+data class Coordinates(val x: Long, val y: Long)
